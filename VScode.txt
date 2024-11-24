@@ -1,0 +1,638 @@
+1.import numpy as np
+
+# Sigmoid activation function
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+# Derivative of Sigmoid
+def sigmoid_derivative(x):
+    return x * (1 - x)
+
+# ReLU activation function
+def relu(x):
+    return np.maximum(0, x)
+
+# Derivative of ReLU
+def relu_derivative(x):
+    return np.where(x > 0, 1, 0)
+
+class NeuralNetwork:
+    def __init__(self, input_size, hidden_size, output_size):
+        # Initialize weights and biases
+        self.input_size = input_size
+        self.hidden_size = hidden_size
+        self.output_size = output_size
+        
+        # Weights and biases for each layer
+        self.weights_input_hidden = np.random.randn(self.input_size, self.hidden_size)  # Input to Hidden layer
+        self.bias_hidden = np.zeros((1, self.hidden_size))
+        
+        self.weights_hidden_output = np.random.randn(self.hidden_size, self.output_size)  # Hidden to Output layer
+        self.bias_output = np.zeros((1, self.output_size))
+        
+    def forward(self, X):
+        # Forward propagation
+        self.hidden_input = np.dot(X, self.weights_input_hidden) + self.bias_hidden
+        self.hidden_output = relu(self.hidden_input)  # Hidden layer activation
+        
+        self.output_input = np.dot(self.hidden_output, self.weights_hidden_output) + self.bias_output
+        self.output = sigmoid(self.output_input)  # Output layer activation (for binary classification)
+        
+        return self.output
+
+    def compute_loss(self, y_true, y_pred):
+        # Mean Squared Error loss function (for regression)
+        return np.mean((y_true - y_pred) ** 2)
+    
+    def backward(self, X, y_true, learning_rate=0.01):
+        # Backward propagation (Gradient Descent)
+        
+        # Output layer error and gradient
+        output_error = y_true - self.output
+        output_delta = output_error * sigmoid_derivative(self.output)
+        
+        # Hidden layer error and gradient
+        hidden_error = output_delta.dot(self.weights_hidden_output.T)
+        hidden_delta = hidden_error * relu_derivative(self.hidden_output)
+        
+        # Update weights and biases
+        self.weights_hidden_output += self.hidden_output.T.dot(output_delta) * learning_rate
+        self.bias_output += np.sum(output_delta, axis=0, keepdims=True) * learning_rate
+        
+        self.weights_input_hidden += X.T.dot(hidden_delta) * learning_rate
+        self.bias_hidden += np.sum(hidden_delta, axis=0, keepdims=True) * learning_rate
+
+# Example usage:
+input_size = 3  # Example: 3 input features
+hidden_size = 4  # Hidden layer with 4 neurons
+output_size = 1  # Output layer (1 neuron for binary classification)
+
+# Initialize the neural network
+nn = NeuralNetwork(input_size, hidden_size, output_size)
+
+# Example input data (X) and labels (y)
+X = np.array([[0.1, 0.2, 0.3],
+              [0.4, 0.5, 0.6],
+              [0.7, 0.8, 0.9]])
+y = np.array([[0], [1], [0]])
+
+# Forward propagation
+output = nn.forward(X)
+print("Output after forward propagation:")
+print(output)
+
+# Compute loss
+loss = nn.compute_loss(y, output)
+print(f"Loss: {loss}")
+
+# Backpropagation (for a single training step)
+nn.backward(X, y, learning_rate=0.1)
+
+# Output after one training step
+output_after_training = nn.forward(X)
+print("Output after one training step:")
+print(output_after_training)
+
+2. import numpy as np
+import matplotlib.pyplot as plt
+
+# Sigmoid activation function
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+# ReLU activation function
+def relu(x):
+    return np.maximum(0, x)
+
+# Leaky ReLU activation function
+def leaky_relu(x, alpha=0.01):
+    return np.where(x > 0, x, alpha * x)
+
+# Generate a range of inputs from -10 to 10
+x = np.linspace(-10, 10, 400)
+
+# Apply each activation function
+sigmoid_output = sigmoid(x)
+relu_output = relu(x)
+leaky_relu_output = leaky_relu(x)
+
+# Plotting the activation functions
+plt.figure(figsize=(10, 6))
+
+# Sigmoid
+plt.subplot(1, 3, 1)
+plt.plot(x, sigmoid_output, label="Sigmoid")
+plt.title("Sigmoid Activation")
+plt.xlabel("Input")
+plt.ylabel("Output")
+plt.grid(True)
+
+# ReLU
+plt.subplot(1, 3, 2)
+plt.plot(x, relu_output, label="ReLU", color='orange')
+plt.title("ReLU Activation")
+plt.xlabel("Input")
+plt.ylabel("Output")
+plt.grid(True)
+
+# Leaky ReLU
+plt.subplot(1, 3, 3)
+plt.plot(x, leaky_relu_output, label="Leaky ReLU", color='green')
+plt.title("Leaky ReLU Activation")
+plt.xlabel("Input")
+plt.ylabel("Output")
+plt.grid(True)
+
+# Show the plots
+plt.tight_layout()
+plt.show()
+
+3.import numpy as np
+
+# Activation function: ReLU for the hidden layer, Sigmoid for the output layer
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+def relu(x):
+    return np.maximum(0, x)
+
+class NeuralNetwork:
+    def __init__(self, input_size, hidden_size, output_size):
+        # Initialize weights and biases
+        self.input_size = input_size
+        self.hidden_size = hidden_size
+        self.output_size = output_size
+        
+        # Weights and biases for each layer
+        self.weights_input_hidden = np.random.randn(self.input_size, self.hidden_size)  # Input to Hidden layer
+        self.bias_hidden = np.zeros((1, self.hidden_size))
+        
+        self.weights_hidden_output = np.random.randn(self.hidden_size, self.output_size)  # Hidden to Output layer
+        self.bias_output = np.zeros((1, self.output_size))
+
+    def forward(self, X):
+        # Forward propagation
+        
+        # Input to Hidden Layer
+        self.hidden_input = np.dot(X, self.weights_input_hidden) + self.bias_hidden
+        self.hidden_output = relu(self.hidden_input)  # Apply ReLU activation to hidden layer
+        
+        # Hidden to Output Layer
+        self.output_input = np.dot(self.hidden_output, self.weights_hidden_output) + self.bias_output
+        self.output = sigmoid(self.output_input)  # Apply Sigmoid activation to output layer
+        
+        return self.output
+
+# Example usage
+input_size = 3  # Example: 3 input features
+hidden_size = 4  # Hidden layer with 4 neurons
+output_size = 1  # Output layer (1 neuron for binary classification)
+
+# Initialize the neural network
+nn = NeuralNetwork(input_size, hidden_size, output_size)
+
+# Example input data (3 samples, each with 3 features)
+X = np.array([[0.1, 0.2, 0.3],
+              [0.4, 0.5, 0.6],
+              [0.7, 0.8, 0.9]])
+
+# Perform forward propagation
+output = nn.forward(X)
+print("Output after forward propagation:")
+print(output)
+
+4.import numpy as np
+
+# Sigmoid activation function
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+# ReLU activation function
+def relu(x):
+    return np.maximum(0, x)
+
+class NeuralNetwork:
+    def __init__(self, input_size, hidden_size, output_size, lambda_reg=0.01):
+        # Initialize weights and biases
+        self.input_size = input_size
+        self.hidden_size = hidden_size
+        self.output_size = output_size
+        self.lambda_reg = lambda_reg  # Regularization strength
+        
+        # Weights and biases for each layer
+        self.weights_input_hidden = np.random.randn(self.input_size, self.hidden_size)  # Input to Hidden layer
+        self.bias_hidden = np.zeros((1, self.hidden_size))
+        
+        self.weights_hidden_output = np.random.randn(self.hidden_size, self.output_size)  # Hidden to Output layer
+        self.bias_output = np.zeros((1, self.output_size))
+
+    def forward(self, X):
+        # Forward propagation
+        
+        # Input to Hidden Layer
+        self.hidden_input = np.dot(X, self.weights_input_hidden) + self.bias_hidden
+        self.hidden_output = relu(self.hidden_input)  # Apply ReLU activation to hidden layer
+        
+        # Hidden to Output Layer
+        self.output_input = np.dot(self.hidden_output, self.weights_hidden_output) + self.bias_output
+        self.output = sigmoid(self.output_input)  # Apply Sigmoid activation to output layer
+        
+        return self.output
+
+    def compute_loss(self, y_true, y_pred):
+        # Mean Squared Error (MSE) loss
+        mse_loss = np.mean((y_true - y_pred) ** 2)
+        
+        # L2 Regularization term (sum of squared weights)
+        l2_loss = self.lambda_reg * (np.sum(self.weights_input_hidden ** 2) + np.sum(self.weights_hidden_output ** 2))
+        
+        # Total loss = MSE + L2 regularization
+        total_loss = mse_loss + l2_loss
+        
+        return total_loss
+
+    def backward(self, X, y_true, learning_rate=0.01):
+        # Backward propagation (Gradient Descent)
+        
+        # Output layer error and gradient
+        output_error = y_true - self.output
+        output_delta = output_error * sigmoid(self.output) * (1 - sigmoid(self.output))
+        
+        # Hidden layer error and gradient
+        hidden_error = output_delta.dot(self.weights_hidden_output.T)
+        hidden_delta = hidden_error * (self.hidden_output > 0)  # Derivative of ReLU
+        
+        # Update weights and biases (including regularization)
+        self.weights_hidden_output += self.hidden_output.T.dot(output_delta) * learning_rate
+        self.bias_output += np.sum(output_delta, axis=0, keepdims=True) * learning_rate
+        
+        self.weights_input_hidden += X.T.dot(hidden_delta) * learning_rate
+        self.bias_hidden += np.sum(hidden_delta, axis=0, keepdims=True) * learning_rate
+        
+        # L2 Regularization: update weights with the penalty term
+        self.weights_hidden_output -= self.lambda_reg * self.weights_hidden_output * learning_rate
+        self.weights_input_hidden -= self.lambda_reg * self.weights_input_hidden * learning_rate
+
+# Example usage
+input_size = 3  # Example: 3 input features
+hidden_size = 4  # Hidden layer with 4 neurons
+output_size = 1  # Output layer (1 neuron for binary classification)
+
+# Initialize the neural network with L2 regularization
+nn = NeuralNetwork(input_size, hidden_size, output_size, lambda_reg=0.01)
+
+# Example input data (3 samples, each with 3 features)
+X = np.array([[0.1, 0.2, 0.3],
+              [0.4, 0.5, 0.6],
+              [0.7, 0.8, 0.9]])
+
+# Example labels (binary classification)
+y = np.array([[0], [1], [0]])
+
+# Perform forward propagation
+output = nn.forward(X)
+print("Output after forward propagation:")
+print(output)
+
+# Compute the loss including L2 regularization
+loss = nn.compute_loss(y, output)
+print(f"Loss with L2 regularization: {loss}")
+
+# Perform backward propagation (one training step)
+nn.backward(X, y, learning_rate=0.1)
+
+# Output after one training step
+output_after_training = nn.forward(X)
+print("Output after one training step:")
+print(output_after_training)
+
+5. import numpy as np
+
+# Sigmoid activation function with overflow prevention
+def sigmoid(x):
+    x = np.clip(x, -20, 20)  # Clamp x to prevent overflow
+    return 1 / (1 + np.exp(-x))
+
+# Sigmoid derivative (used in backpropagation)
+def sigmoid_derivative(x):
+    sig = sigmoid(x)  # Calculate sigmoid value
+    return sig * (1 - sig)
+
+# ReLU activation function (no overflow issues)
+def relu(x):
+    return np.maximum(0, x)
+
+# ReLU derivative (used in backpropagation)
+def relu_derivative(x):
+    return (x > 0).astype(float)
+
+class NeuralNetwork:
+    def __init__(self, input_size, hidden_size, output_size, lambda_reg=0.01, beta1=0.9, beta2=0.999, epsilon=1e-8):
+        # Initialize weights and biases
+        self.input_size = input_size
+        self.hidden_size = hidden_size
+        self.output_size = output_size
+        self.lambda_reg = lambda_reg  # Regularization strength
+        self.beta1 = beta1  # Decay rate for first moment estimate
+        self.beta2 = beta2  # Decay rate for second moment estimate
+        self.epsilon = epsilon  # Small constant for numerical stability
+        
+        # Weights and biases for each layer
+        self.weights_input_hidden = np.random.randn(self.input_size, self.hidden_size)  # Input to Hidden layer
+        self.bias_hidden = np.zeros((1, self.hidden_size))
+        
+        self.weights_hidden_output = np.random.randn(self.hidden_size, self.output_size)  # Hidden to Output layer
+        self.bias_output = np.zeros((1, self.output_size))
+        
+        # Adam optimizer variables (initialized to 0)
+        self.m_w_input_hidden = np.zeros_like(self.weights_input_hidden)
+        self.v_w_input_hidden = np.zeros_like(self.weights_input_hidden)
+        self.m_b_hidden = np.zeros_like(self.bias_hidden)
+        self.v_b_hidden = np.zeros_like(self.bias_hidden)
+
+        self.m_w_hidden_output = np.zeros_like(self.weights_hidden_output)
+        self.v_w_hidden_output = np.zeros_like(self.weights_hidden_output)
+        self.m_b_output = np.zeros_like(self.bias_output)
+        self.v_b_output = np.zeros_like(self.bias_output)
+
+    def forward(self, X):
+        # Forward propagation
+        
+        # Input to Hidden Layer
+        self.hidden_input = np.dot(X, self.weights_input_hidden) + self.bias_hidden
+        self.hidden_output = relu(self.hidden_input)  # Apply ReLU activation to hidden layer
+        
+        # Hidden to Output Layer
+        self.output_input = np.dot(self.hidden_output, self.weights_hidden_output) + self.bias_output
+        self.output = sigmoid(self.output_input)  # Apply Sigmoid activation to output layer
+        
+        return self.output
+
+    def compute_loss(self, y_true, y_pred):
+        # Mean Squared Error (MSE) loss
+        mse_loss = np.mean((y_true - y_pred) ** 2)
+        
+        # L2 Regularization term (sum of squared weights)
+        l2_loss = self.lambda_reg * (np.sum(self.weights_input_hidden ** 2) + np.sum(self.weights_hidden_output ** 2))
+        
+        # Total loss = MSE + L2 regularization
+        total_loss = mse_loss + l2_loss
+        
+        return total_loss
+
+    def backward(self, X, y_true):
+        # Backward propagation (Gradient Descent)
+        
+        # Output layer error and gradient
+        output_error = y_true - self.output
+        output_delta = output_error * sigmoid_derivative(self.output_input)
+        
+        # Hidden layer error and gradient
+        hidden_error = output_delta.dot(self.weights_hidden_output.T)
+        hidden_delta = hidden_error * relu_derivative(self.hidden_input)  # Derivative of ReLU
+        
+        # Gradients for weights and biases
+        grad_weights_hidden_output = self.hidden_output.T.dot(output_delta)
+        grad_bias_output = np.sum(output_delta, axis=0, keepdims=True)
+        
+        grad_weights_input_hidden = X.T.dot(hidden_delta)
+        grad_bias_hidden = np.sum(hidden_delta, axis=0, keepdims=True)
+        
+        # L2 Regularization: gradients for weights
+        grad_weights_hidden_output += 2 * self.lambda_reg * self.weights_hidden_output
+        grad_weights_input_hidden += 2 * self.lambda_reg * self.weights_input_hidden
+        
+        return grad_weights_input_hidden, grad_bias_hidden, grad_weights_hidden_output, grad_bias_output
+
+    def update_weights(self, grad_weights_input_hidden, grad_bias_hidden, grad_weights_hidden_output, grad_bias_output, learning_rate=0.001):
+        # Update weights using Adam optimizer
+        
+        # Update for Input to Hidden layer weights
+        self.m_w_input_hidden = self.beta1 * self.m_w_input_hidden + (1 - self.beta1) * grad_weights_input_hidden
+        self.v_w_input_hidden = self.beta2 * self.v_w_input_hidden + (1 - self.beta2) * (grad_weights_input_hidden ** 2)
+        m_w_input_hidden_hat = self.m_w_input_hidden / (1 - self.beta1)
+        v_w_input_hidden_hat = self.v_w_input_hidden / (1 - self.beta2)
+        self.weights_input_hidden -= learning_rate * m_w_input_hidden_hat / (np.sqrt(v_w_input_hidden_hat) + self.epsilon)
+
+        self.m_b_hidden = self.beta1 * self.m_b_hidden + (1 - self.beta1) * grad_bias_hidden
+        self.v_b_hidden = self.beta2 * self.v_b_hidden + (1 - self.beta2) * (grad_bias_hidden ** 2)
+        m_b_hidden_hat = self.m_b_hidden / (1 - self.beta1)
+        v_b_hidden_hat = self.v_b_hidden / (1 - self.beta2)
+        self.bias_hidden -= learning_rate * m_b_hidden_hat / (np.sqrt(v_b_hidden_hat) + self.epsilon)
+
+        # Update for Hidden to Output layer weights
+        self.m_w_hidden_output = self.beta1 * self.m_w_hidden_output + (1 - self.beta1) * grad_weights_hidden_output
+        self.v_w_hidden_output = self.beta2 * self.v_w_hidden_output + (1 - self.beta2) * (grad_weights_hidden_output ** 2)
+        m_w_hidden_output_hat = self.m_w_hidden_output / (1 - self.beta1)
+        v_w_hidden_output_hat = self.v_w_hidden_output / (1 - self.beta2)
+        self.weights_hidden_output -= learning_rate * m_w_hidden_output_hat / (np.sqrt(v_w_hidden_output_hat) + self.epsilon)
+
+        self.m_b_output = self.beta1 * self.m_b_output + (1 - self.beta1) * grad_bias_output
+        self.v_b_output = self.beta2 * self.v_b_output + (1 - self.beta2) * (grad_bias_output ** 2)
+        m_b_output_hat = self.m_b_output / (1 - self.beta1)
+        v_b_output_hat = self.v_b_output / (1 - self.beta2)
+        self.bias_output -= learning_rate * m_b_output_hat / (np.sqrt(v_b_output_hat) + self.epsilon)
+
+# Training the neural network with Adam optimizer
+def train_nn_with_adam(nn, X, y, epochs=1000, learning_rate=0.001):
+    for epoch in range(epochs):
+        # Forward pass
+        y_pred = nn.forward(X)
+        
+        # Compute loss
+        loss = nn.compute_loss(y, y_pred)
+        
+        # Backward pass (calculate gradients)
+        grad_weights_input_hidden, grad_bias_hidden, grad_weights_hidden_output, grad_bias_output = nn.backward(X, y)
+        
+        # Update weights using Adam optimizer
+        nn.update_weights(grad_weights_input_hidden, grad_bias_hidden, grad_weights_hidden_output, grad_bias_output, learning_rate)
+        
+        # Print the loss every 100 epochs
+        if epoch % 100 == 0:
+            print(f"Epoch {epoch}/{epochs}, Loss: {loss}")
+
+# Example usage
+input_size = 3  # Example: 3 input features
+hidden_size = 4  # Hidden layer with 4 neurons
+output_size = 1  # Output layer (1 neuron for binary classification)
+
+# Initialize the neural network with Adam optimizer
+nn = NeuralNetwork(input_size, hidden_size, output_size, lambda_reg=0.01)
+
+# Example input data (3 samples, each with 3 features)
+X = np.array([[0.1, 0.2, 0.3],
+              [0.4, 0.5, 0.6],
+              [0.7, 0.8, 0.9]])
+
+# Example labels (binary classification)
+y = np.array([[0], [1], [0]])
+
+# Train the neural network using Adam optimizer
+train_nn_with_adam(nn, X, y, epochs=1000, learning_rate=0.001)
+
+# Final output after training
+output_after_training = nn.forward(X)
+print("Output after training:")
+print(output_after_training)
+
+6.
+import numpy as np
+
+# Sigmoid activation function
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+# ReLU activation function
+def relu(x):
+    return np.maximum(0, x)
+
+class NeuralNetwork:
+    def __init__(self, input_size, hidden_size, output_size, lambda_reg=0.01, beta1=0.9, beta2=0.999, epsilon=1e-8):
+        # Initialize weights and biases
+        self.input_size = input_size
+        self.hidden_size = hidden_size
+        self.output_size = output_size
+        self.lambda_reg = lambda_reg  # Regularization strength
+        self.beta1 = beta1  # Decay rate for first moment estimate
+        self.beta2 = beta2  # Decay rate for second moment estimate
+        self.epsilon = epsilon  # Small constant for numerical stability
+        
+        # Weights and biases for each layer
+        self.weights_input_hidden = np.random.randn(self.input_size, self.hidden_size)  # Input to Hidden layer
+        self.bias_hidden = np.zeros((1, self.hidden_size))
+        
+        self.weights_hidden_output = np.random.randn(self.hidden_size, self.output_size)  # Hidden to Output layer
+        self.bias_output = np.zeros((1, self.output_size))
+        
+        # Adam optimizer variables (initialized to 0)
+        self.m_w_input_hidden = np.zeros_like(self.weights_input_hidden)
+        self.v_w_input_hidden = np.zeros_like(self.weights_input_hidden)
+        self.m_b_hidden = np.zeros_like(self.bias_hidden)
+        self.v_b_hidden = np.zeros_like(self.bias_hidden)
+
+        self.m_w_hidden_output = np.zeros_like(self.weights_hidden_output)
+        self.v_w_hidden_output = np.zeros_like(self.weights_hidden_output)
+        self.m_b_output = np.zeros_like(self.bias_output)
+        self.v_b_output = np.zeros_like(self.bias_output)
+
+    def forward(self, X):
+        # Forward propagation
+        
+        # Input to Hidden Layer
+        self.hidden_input = np.dot(X, self.weights_input_hidden) + self.bias_hidden
+        self.hidden_output = relu(self.hidden_input)  # Apply ReLU activation to hidden layer
+        
+        # Hidden to Output Layer
+        self.output_input = np.dot(self.hidden_output, self.weights_hidden_output) + self.bias_output
+        self.output = sigmoid(self.output_input)  # Apply Sigmoid activation to output layer
+        
+        return self.output
+
+    def compute_loss(self, y_true, y_pred):
+        # Mean Squared Error (MSE) loss
+        mse_loss = np.mean((y_true - y_pred) ** 2)
+        
+        # L2 Regularization term (sum of squared weights)
+        l2_loss = self.lambda_reg * (np.sum(self.weights_input_hidden ** 2) + np.sum(self.weights_hidden_output ** 2))
+        
+        # Total loss = MSE + L2 regularization
+        total_loss = mse_loss + l2_loss
+        
+        return total_loss
+
+    def backward(self, X, y_true):
+        # Backward propagation (Gradient Descent)
+        
+        # Output layer error and gradient
+        output_error = y_true - self.output
+        output_delta = output_error * sigmoid(self.output) * (1 - sigmoid(self.output))
+        
+        # Hidden layer error and gradient
+        hidden_error = output_delta.dot(self.weights_hidden_output.T)
+        hidden_delta = hidden_error * (self.hidden_output > 0)  # Derivative of ReLU
+        
+        # Gradients for weights and biases
+        grad_weights_hidden_output = self.hidden_output.T.dot(output_delta)
+        grad_bias_output = np.sum(output_delta, axis=0, keepdims=True)
+        
+        grad_weights_input_hidden = X.T.dot(hidden_delta)
+        grad_bias_hidden = np.sum(hidden_delta, axis=0, keepdims=True)
+        
+        # L2 Regularization: gradients for weights
+        grad_weights_hidden_output += 2 * self.lambda_reg * self.weights_hidden_output
+        grad_weights_input_hidden += 2 * self.lambda_reg * self.weights_input_hidden
+        
+        return grad_weights_input_hidden, grad_bias_hidden, grad_weights_hidden_output, grad_bias_output
+
+    def update_weights(self, grad_weights_input_hidden, grad_bias_hidden, grad_weights_hidden_output, grad_bias_output, learning_rate=0.001):
+        # Update weights using Adam optimizer
+        
+        # Update for Input to Hidden layer weights
+        self.m_w_input_hidden = self.beta1 * self.m_w_input_hidden + (1 - self.beta1) * grad_weights_input_hidden
+        self.v_w_input_hidden = self.beta2 * self.v_w_input_hidden + (1 - self.beta2) * (grad_weights_input_hidden ** 2)
+        m_w_input_hidden_hat = self.m_w_input_hidden / (1 - self.beta1)
+        v_w_input_hidden_hat = self.v_w_input_hidden / (1 - self.beta2)
+        self.weights_input_hidden -= learning_rate * m_w_input_hidden_hat / (np.sqrt(v_w_input_hidden_hat) + self.epsilon)
+
+        self.m_b_hidden = self.beta1 * self.m_b_hidden + (1 - self.beta1) * grad_bias_hidden
+        self.v_b_hidden = self.beta2 * self.v_b_hidden + (1 - self.beta2) * (grad_bias_hidden ** 2)
+        m_b_hidden_hat = self.m_b_hidden / (1 - self.beta1)
+        v_b_hidden_hat = self.v_b_hidden / (1 - self.beta2)
+        self.bias_hidden -= learning_rate * m_b_hidden_hat / (np.sqrt(v_b_hidden_hat) + self.epsilon)
+
+        # Update for Hidden to Output layer weights
+        self.m_w_hidden_output = self.beta1 * self.m_w_hidden_output + (1 - self.beta1) * grad_weights_hidden_output
+        self.v_w_hidden_output = self.beta2 * self.v_w_hidden_output + (1 - self.beta2) * (grad_weights_hidden_output ** 2)
+        m_w_hidden_output_hat = self.m_w_hidden_output / (1 - self.beta1)
+        v_w_hidden_output_hat = self.v_w_hidden_output / (1 - self.beta2)
+        self.weights_hidden_output -= learning_rate * m_w_hidden_output_hat / (np.sqrt(v_w_hidden_output_hat) + self.epsilon)
+
+        self.m_b_output = self.beta1 * self.m_b_output + (1 - self.beta1) * grad_bias_output
+        self.v_b_output = self.beta2 * self.v_b_output + (1 - self.beta2) * (grad_bias_output ** 2)
+        m_b_output_hat = self.m_b_output / (1 - self.beta1)
+        v_b_output_hat = self.v_b_output / (1 - self.beta2)
+        self.bias_output -= learning_rate * m_b_output_hat / (np.sqrt(v_b_output_hat) + self.epsilon)
+
+# Training the neural network with Adam optimizer
+def train_nn_with_adam(nn, X, y, epochs=1000, learning_rate=0.001):
+    for epoch in range(epochs):
+        # Forward pass
+        y_pred = nn.forward(X)
+        
+        # Compute loss
+        loss = nn.compute_loss(y, y_pred)
+        
+        # Backward pass (calculate gradients)
+        grad_weights_input_hidden, grad_bias_hidden, grad_weights_hidden_output, grad_bias_output = nn.backward(X, y)
+        
+        # Update weights using Adam optimizer
+        nn.update_weights(grad_weights_input_hidden, grad_bias_hidden, grad_weights_hidden_output, grad_bias_output, learning_rate)
+        
+        # Print the loss every 100 epochs
+        if epoch % 100 == 0:
+            print(f"Epoch {epoch}/{epochs}, Loss: {loss}")
+
+# Example usage
+input_size = 3  # Example: 3 input features
+hidden_size = 4  # Hidden layer with 4 neurons
+output_size = 1  # Output layer (1 neuron for binary classification)
+
+# Initialize the neural network with Adam optimizer
+nn = NeuralNetwork(input_size, hidden_size, output_size, lambda_reg=0.01)
+
+# Example input data (3 samples, each with 3 features)
+X = np.array([[0.1, 0.2, 0.3],
+              [0.4, 0.5, 0.6],
+              [0.7, 0.8, 0.9]])
+
+# Example labels (binary classification)
+y = np.array([[0], [1], [0]])
+
+# Train the neural network using Adam optimizer
+train_nn_with_adam(nn, X, y, epochs=1000, learning_rate=0.001)
+
+# Final output after training
+output_after_training = nn.forward(X)
+print("Output after training:")
+print(output_after_training)

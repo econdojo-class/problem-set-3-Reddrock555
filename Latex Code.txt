@@ -1,0 +1,76 @@
+\documentclass[12pt]{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{fancyhdr}
+\usepackage{float}  % Allows [H] option for figures to force placement
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\today}     
+\fancyhead[R]{Aman Dongre}  
+
+\renewcommand{\headrulewidth}{0.4pt}  
+
+\title{Problem Set 3 : Neural Networks Report}
+\author{Aman Dongre}
+\date{November 2024}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+In this problem set, we will explore the foundational concepts of neural networks, covering basic architecture, activation functions, forward propagation, regularization, and adaptive learning. We will also complete the coding exercises to implement neural network components and train a basic neural network. 
+
+\section{3 Layer Neural Network}
+Implementation of a 3-Layer Neural Network: A neural network is composed of layers of neurons: input layer, hidden layer(s), and an output layer. Each neuron receives inputs, processes them, and passes the result to the next layer. With the help of numpy on VScode, the neural network is built and the outputs are shown below:
+
+\begin{figure}[H]  % The [H] option forces the figure to be placed exactly here
+    \centering
+    \includegraphics[width=0.5\linewidth]{3 layer Neural Network.png}
+    \caption{3 Layer Neural Network}
+    \label{fig:enter-label}
+\end{figure}
+
+This is a basic, minimal implementation to give you a foundational understanding of how a neural network is structured and how it performs forward propagation and back propagation.
+
+\section{Activation Functions (Plots)}
+Outputs for the Activation functions are given below:
+
+\begin{figure}[H]  % The [H] option forces the figure to be placed exactly here
+    \centering
+    \includegraphics[width=1.00\linewidth]{Activation Function Plots(1).png}
+    \caption{Activation Functions Plots}
+    \label{fig:Activation Function Plots}
+\end{figure}
+
+The Sigmoid, ReLU, and Leaky ReLU activation functions, showing their respective behaviors over the input range from -10 to 10.
+\\\section{Forward propagation}\\Implemented forward propagation for 3 layer neural network and the Output is shown below :\\
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Forward Propagation.png}
+    \label{fig:Forward Propagation}
+\end{figure}
+\\\section{Overfitting and Regularization}\\Overfitting occurs when a model learns the noise in the training data rather than the actual pattern and we used Regularization to help control this in this problem set.\\The Output is given below using L2 regularization and dropout :\\
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\linewidth]{L2.png}
+    \label{fig:L2 regularization}
+\end{figure}\begin{itemize}
+    \item{Sigmoid with Overflow Prevention: The sigmoid function now uses np.clip(x, -20, 20) to clamp input values to a range that prevents overflow when calculating the exponential term.}
+\item{Sigmoid Derivative: We compute the derivative of the sigmoid using the output from the sigmoid function itself, making the back propagation calculations more efficient.} \end{itemize}\\\section{Training a Neural Network}
+\\Implemented a simple gradient descent loop to train the neural network using Epoch tests. The output is shown below :\\
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Neural Network.png}
+    \label{fig:Neural Network}
+\end{figure}
+\\\section{Adaptive Learning Rates}\\We used Adaptive learning rate methods, like Adam, adjust the learning rate based on past gradients, improving the training stability, And the output is shown Below :\\
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{Adaptive Learning Rates.png}
+    \label{fig:Adaptive Learning Rates Outpt}
+\end{figure}\\
+\section{Summary}\\This report explores the foundational concepts of neural networks, focusing on the architecture, activation functions, forward propagation, regularization, and adaptive learning. It includes the implementation of a 3-layer neural network using Python, demonstrating how layers interact and how forward propagation and backpropagation are performed. Key techniques like L2 regularization and dropout are discussed to mitigate overfitting. The report also covers the application of gradient descent for training the network, as well as visualizations of activation functions and training results.
+\end{document}
